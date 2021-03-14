@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import axes3d
-
+import datetime
 
 def function(x, y):
     z = np.array([(x ** 2 + y - 11) ** 2 + (x + y ** 2 - 7) ** 2], dtype='int64')
@@ -28,7 +28,8 @@ def inv_hessian(x, y):
     return np.linalg.inv(hessian)
 
 
-def steepest_gradient_desc(function, gradient, start_point, learning_rate=0.01, steps=10 ** 3, stop_value=10 ** (-12)):
+def steepest_gradient_desc(function, gradient, start_point, learning_rate=0.01, steps=10 ** 4, stop_value=10 ** (-12)):
+    start = datetime.datetime.now()
     i = 0
     overflow_flag = 1
     x = start_point[0, 0]
@@ -46,25 +47,27 @@ def steepest_gradient_desc(function, gradient, start_point, learning_rate=0.01, 
         curr_value = function(x, y)
         x_coordinates.append(x)
         y_coordinates.append(y)
-
+        print(curr_value, i)
         if curr_value == sys.maxsize:
             overflow_flag = 0
 
         value_array.append(curr_value)
         start_point = start_point - learning_rate * gradient(x, y)
-
+        print(start_point)
         if curr_value < min_value:
             min_value = curr_value
             x0 = x
             y0 = y
 
         i = i + 1
+    end = datetime.datetime.now()
+    time = (end - start)
 
-    return i, min_value, x_coordinates, y_coordinates, value_array, x0, y0
+    return i, min_value, x_coordinates, y_coordinates, value_array, x0, y0, time.total_seconds()
 
 
-def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0.05, steps=10 ** 3,
-                   stop_value=10 ** (-12)):
+def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0.05, steps=10 ** 4, stop_value=10 ** (-12)):
+    start = datetime.datetime.now()
     i = 0
     overflow_flag = 1
     x = start_point[0, 0]
@@ -98,8 +101,10 @@ def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0
             y0 = y
 
         i = i + 1
+        end = datetime.datetime.now()
+        time = (end - start)
 
-    return i, min_value, x_coordinates, y_coordinates, value_array, x0, y0
+    return i, min_value, x_coordinates, y_coordinates, value_array, x0, y0, time.total_seconds()
 
 
 ###steepest_gradient_desc(function, gradient, np.array([[-5], [3]]), 0.01, 10 ** 4)
@@ -111,6 +116,7 @@ def plot_surface_and_path_both_methods(start_point, random_learning_rate=np.rand
     result_grad = steepest_gradient_desc(function, gradient, start_point, random_learning_rate, random_max_steps)
     result_newthon = newthon_method(function, gradient, inv_hessian, start_point, random_learning_rate,
                                     random_max_steps)
+
     X, Y = np.meshgrid(result_grad[2], result_grad[3])
     X_val = np.array(result_grad[2])
     Y_val = np.array(result_grad[3])
@@ -125,10 +131,10 @@ def plot_surface_and_path_both_methods(start_point, random_learning_rate=np.rand
     plt.plot([result_grad[5]], [result_grad[6]], [result_grad[1][0]], markerfacecolor='m', markeredgecolor='m',
              marker='p', markersize=8)
     plt.title(
-        "Wykres powierzchni metodą SGD dla\n punktu startowego [{} , {}] do punktu [{} , {}] przy \n współczynniku beta {} i maksymalnej liczbie kroków = {} \n Wartość funkcji w tym punkcie to: {} po {} krokach"
+        "Wykres powierzchni metodą SGD dla\n punktu startowego [{} , {}] do punktu [{} , {}] przy \n współczynniku beta {} i maksymalnej liczbie kroków = {} \n Wartość funkcji w tym punkcie to: {} po {} krokach w czasie {}"
         .format(start_point[0, 0], start_point[1, 0], np.around(result_grad[5], 2), np.around(result_grad[6], 2),
                 np.around(random_learning_rate, 3), np.around(random_max_steps), np.around(result_grad[1][0], 2),
-                np.around(result_grad[0]), fontsize=8))
+                np.around(result_grad[0]), result_grad[7], fontsize=8))
     plt.show()
     ax = plt.axes(projection='3d')
     ax.plot(X_val, Y_val, Z.flatten())
@@ -176,15 +182,18 @@ def plot_surface_and_path_both_methods(start_point, random_learning_rate=np.rand
     ax.set_ylabel("Współrzędna  Y")
     ax.set_zlabel("Wartość funkcji w punkcie [X,Y]")
     plt.title(
-        "Wykres drogi metodą Newthona dla\n punktu startowego [{} , {}] do punktu [{} , {}] przy \n współczynniku beta {} i maksymalnej liczbie kroków = {} \n Wartość funkcji w tym punkcie to: {} po {} krokach"
+        "Wykres drogi metodą Newthona dla\n punktu startowego [{} , {}] do punktu [{} , {}] przy \n współczynniku beta {} i maksymalnej liczbie kroków = {} \n Wartość funkcji w tym punkcie to: {} po {} krokach w czasie {}"
             .format(start_point[0, 0], start_point[1, 0], np.around(result_newthon[5], 2),
                     np.around(result_newthon[6], 2),
                     np.around(random_learning_rate, 3), np.around(random_max_steps), np.around(result_newthon[1][0], 2),
-                    np.around(result_newthon[0]), fontsize=8))
+                    np.around(result_newthon[0]), result_grad[7], fontsize=8))
     plt.show()
 
 
 #plot_surface_and_path_both_methods(start_point=np.array([[5], [2.4]]))
-plot_surface_and_path_both_methods(start_point=np.array([[5], [3]]), random_learning_rate=np.around(0.033,4))
+#plot_surface_and_path_both_methods(start_point=np.array([[5], [3]]), random_learning_rate=np.around(0.033,4))
+#plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]), random_learning_rate=np.around(0.01,4))
+plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]), random_learning_rate=np.around(0.0001,4))
+plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]), random_learning_rate=np.around(0.00001,4))
+#plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]), random_learning_rate=np.around(0.033,4))
 #plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]))
-newthon_method(function, gradient, inv_hessian, np.array([[5], [3]]), np.around(0.033), 10)
