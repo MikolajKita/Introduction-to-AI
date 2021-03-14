@@ -8,7 +8,8 @@ from mpl_toolkits.mplot3d import axes3d
 def function(x, y):
     z = np.array([(x ** 2 + y - 11) ** 2 + (x + y ** 2 - 7) ** 2], dtype='int64')
     if sys.maxsize <= z:
-        z = sys.maxsize
+        z = np.array([sys.maxsize])
+
     return z
 
 
@@ -79,7 +80,7 @@ def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0
         x_coordinates.append(x)
         y_coordinates.append(y)
 
-    while i < steps and min_value > stop_value:
+    while i < steps and min_value > stop_value and overflow_flag:
         x = start_point[0, 0]
         y = start_point[1, 0]
         x_coordinates.append(x)
@@ -88,7 +89,6 @@ def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0
 
         if curr_value == sys.maxsize:
             overflow_flag = 0
-
         value_array.append(curr_value)
         start_point = start_point - learning_rate * inv_hessian(x, y) * gradient(x, y)
 
@@ -106,40 +106,8 @@ def newthon_method(function, gradient, inv_hessian, start_point, learning_rate=0
 ###newthon_method(function, gradient, inv_hessian, np.array([[-5], [3]]), 0.01, 10 ** 4)
 
 
-def plot_random_scatter(first_function, second_function, start_point, number_of_points=100):
-    step_list = []
-    value_list = []
-    step_list_newthon = []
-    value_list_newthon = []
-    number = 0
-    random_learning_rate = np.random.uniform(10 ** (-2), 10 ** (-12))
-    random_max_steps = np.random.uniform(10 ** 2, 10 ** 4)
-    while number < number_of_points:
-        result_grad = steepest_gradient_desc(function, gradient, start_point, random_learning_rate, random_max_steps)
-        step_list.append(result_grad[0])
-        value_list.append(result_grad[1])
-        result_newthon = newthon_method(function, gradient, inv_hessian, start_point, random_learning_rate,
-                                        random_max_steps)
-        step_list_newthon.append(result_newthon[0])
-        value_list_newthon.append(result_newthon[1])
-        number = number + 1
-    steps = np.array(step_list)
-    value = np.array(value_list)
-    steps_newthon = np.array(step_list_newthon)
-    value_newthon = np.array(value_list_newthon)
-    plt.scatter(steps, value, label="Gradient", c="red", alpha=0.5, s=4)
-    plt.scatter(steps_newthon, value_newthon, label="Newthon method", c="blue", alpha=0.5, s=4)
-    plt.xlabel("Number of steps")
-    plt.ylabel("Minimal value found")
-    plt.title(
-        "Wykres obu metod dla punktu {} przy parametrach: learning_rate = {} i maksymalnej ilości kroków = {}".format(
-            start_point, random_learning_rate, random_max_steps))
-    plt.legend()
-    plt.show()
-
-
 def plot_surface_and_path_both_methods(start_point, random_learning_rate=np.random.uniform(0.05, 0.01),
-                                       random_max_steps=np.random.uniform(10 ** 2, 5 * 10 ** 3)):
+                                       random_max_steps=np.random.randint(10**2, 10**4)):
     result_grad = steepest_gradient_desc(function, gradient, start_point, random_learning_rate, random_max_steps)
     result_newthon = newthon_method(function, gradient, inv_hessian, start_point, random_learning_rate,
                                     random_max_steps)
@@ -216,6 +184,7 @@ def plot_surface_and_path_both_methods(start_point, random_learning_rate=np.rand
     plt.show()
 
 
-plot_surface_and_path_both_methods(start_point=np.array([[5], [2.4]]))
-plot_surface_and_path_both_methods(start_point=np.array([[5], [3]]))
-plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]))
+#plot_surface_and_path_both_methods(start_point=np.array([[5], [2.4]]))
+plot_surface_and_path_both_methods(start_point=np.array([[5], [3]]), random_learning_rate=np.around(0.033,4))
+#plot_surface_and_path_both_methods(start_point=np.array([[-5], [5]]))
+newthon_method(function, gradient, inv_hessian, np.array([[5], [3]]), np.around(0.033), 10)
