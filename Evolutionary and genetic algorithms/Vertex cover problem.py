@@ -7,11 +7,10 @@ def sym_graph(number_of_vertices):
     graph_symm = (graph + graph.T)%2
     return graph_symm
 
-def mark_result(graph_symm, points):
+def evaluation_method(graph_symm, points):
 
     result = graph_symm*points
-    result_two = (result | result.T)
-    result_three = (result | result.T)
+    result_two = (result | result.T) ## OR allows me to capture all edges, makes it easy to just divide by two and get result
     print(graph_symm)
     print()
     print(result_two)
