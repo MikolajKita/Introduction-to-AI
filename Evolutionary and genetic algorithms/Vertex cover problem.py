@@ -65,30 +65,31 @@ def tournament (graph, starting_population, tournament_size, evaluation, max_pop
             max_result = evaluation(graph, vertex_to_evaluation(i, max_population))
             tournament_winner = i
 
-    print(tournament_winner, max_result)
+    #print(tournament_winner, max_result)
     return tournament_winner
 
 
 def evolution_algorithm(graph, evaluation, starting_population, max_population, mutation_prob, max_iter, all_population, current_population):
     i = 0
-    curr_population_array = list_to_evaluation_array(current_population, max_population)
 
-    max_result = evaluation(graph, starting_population)
+    curr_population_array = list_to_evaluation_array(current_population, max_population)
+    max_result = evaluation(graph, curr_population_array)
     start_result = max_result
+    print(start_result)
+    print()
     while i < max_iter:
         #vertex_to_evaluation(tourney[0], max_population)
         #vertex_to_evaluation(tourney[1], max_population)
         #tournament(graph, current_population, 3, evaluation, max_population)
-
-
-        chosen_one = tournament(graph, array_to_list(all_population-curr_population_array), 3, evaluation, max_population)
-        current_population.remove(np.random.choice(current_population, 1, replace=False))
+        print(current_population)
+        removed_one = tournament(graph, current_population, 3, evaluation, max_population)
+        chosen_one = tournament(graph, array_to_list(all_population-curr_population_array), 4, evaluation, max_population)
+        current_population.remove(removed_one)
         current_population.append(chosen_one)
         current_population.sort()
         print(current_population)
         curr_population_array = list_to_evaluation_array(current_population, max_population)
-        print(curr_population_array)
-        print()
+        print(evaluation(graph, curr_population_array))
 
         if max_result < evaluation(graph, curr_population_array):
             max_result = evaluation(graph, curr_population_array)
@@ -106,15 +107,25 @@ def evolution_algorithm(graph, evaluation, starting_population, max_population, 
 #result(np.ones((5,5)), array)
 
 
-max_population = 10
+max_population = 25
 
 
 list = np.random.randint(0,2,size=(max_population))
-print(list)
 all_pop = np.ones(max_population)
-curr_pop = [2,4,6]
-
+curr_pop = [2,4,6,10]
+graph_mine = np.array([[0,1,0,0,1,0,0,0,1,0]
+,[1,0,0,1,0,1,0,1,0,1]
+,[0,0,0,0,1,1,0,1,0,1]
+,[0,1,0,0,0,0,1,1,1,1]
+,[1,0,1,0,0,0,1,0,1,0]
+,[0,1,1,0,0,0,0,1,0,0]
+,[0,0,0,1,1,0,0,0,0,0]
+,[0,1,1,1,0,1,0,0,0,0]
+,[1,0,0,1,1,0,0,0,0,0]
+,[0,1,1,1,0,0,0,0,0,0]])
+print(graph_mine)
 #list_to_evaluation_array(list, 6)
 
 
-evolution_algorithm(sym_graph(max_population), evaluation_method, list, max_population, 8, 100, all_pop, curr_pop)
+evolution_algorithm(sym_graph(max_population), evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop)
+#evolution_algorithm(graph_mine, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop)
