@@ -5,7 +5,6 @@ import numpy as np
 def sym_graph(number_of_vertices):
     graph = np.random.randint(0,2,size=(number_of_vertices,number_of_vertices))
     graph_symm = (graph + graph.T)%2
-    print(graph_symm)
     return graph_symm
 
 
@@ -40,7 +39,7 @@ def vertex_to_evaluation(vertex, max_population):
             return_list.append(1)
         else:
             return_list.append(0)
-    #print(return_list)
+
     return return_list
 
 def array_to_list(array):
@@ -52,7 +51,6 @@ def array_to_list(array):
         x = x + 1
         i = i + 1
 
-    #print(r_list)
     return r_list
 
 def tournament (graph, starting_population, tournament_size, evaluation, max_population):
@@ -65,7 +63,6 @@ def tournament (graph, starting_population, tournament_size, evaluation, max_pop
             max_result = evaluation(graph, vertex_to_evaluation(i, max_population))
             tournament_winner = i
 
-    #print(tournament_winner, max_result)
     return tournament_winner
 
 
@@ -99,20 +96,12 @@ def evolution_algorithm(graph, evaluation, starting_population, max_population, 
     print (max_result, start_result)
     return max_result
 
-
-
-#array = np.array([1,1,1,1,1])
-#result(sym_graph(5), array)
-
-#result(np.ones((5,5)), array)
-
-
 max_population = 25
 
 
 list = np.random.randint(0,2,size=(max_population))
 all_pop = np.ones(max_population)
-curr_pop = [2,4,6,10]
+curr_pop = [2,4,6,10,12]
 graph_mine = np.array([[0,1,0,0,1,0,0,0,1,0]
 ,[1,0,0,1,0,1,0,1,0,1]
 ,[0,0,0,0,1,1,0,1,0,1]
@@ -124,8 +113,13 @@ graph_mine = np.array([[0,1,0,0,1,0,0,0,1,0]
 ,[1,0,0,1,1,0,0,0,0,0]
 ,[0,1,1,1,0,0,0,0,0,0]])
 print(graph_mine)
-#list_to_evaluation_array(list, 6)
+tab = []
+chosen_graph = sym_graph(max_population)
 
 
-evolution_algorithm(sym_graph(max_population), evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop)
-#evolution_algorithm(graph_mine, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop)
+tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 10, all_pop, curr_pop))
+tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 100, all_pop, curr_pop))
+tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop))
+
+print(tab)
+
