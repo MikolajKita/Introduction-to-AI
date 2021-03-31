@@ -7,14 +7,13 @@ def sym_graph(number_of_vertices):
     graph_symm = (graph + graph.T)%2
     return graph_symm
 
+
 def evaluation_method(graph_symm, points):
 
-    result = graph_symm*points
-    result_two = (result | result.T) ## OR allows me to capture all edges, makes it easy to just divide by two and get result
-    print(graph_symm)
-    print()
-    print(result_two)
-    print(np.sum(result_two)/2)
+    chosen_vertex_graph = graph_symm*points
+    chosen_vertex_graph_symm = (chosen_vertex_graph | chosen_vertex_graph.T) ## OR allows me to capture all edges, makes it easy to just divide by two and get result
+    result = np.sum(chosen_vertex_graph_symm/2)
+    return result
 
 
 #result(sym_graph(5), )
@@ -24,7 +23,5 @@ def evaluation_method(graph_symm, points):
 #result(sym_graph(5), array)
 graph = sym_graph(6)
 array = np.array([1,0,1,0,1,1])
-mark_result(graph, array)
-array = np.array([0,1,1,1,0,1])
-mark_result(graph, array)
+evaluation_method(graph, array)
 #result(np.ones((5,5)), array)
