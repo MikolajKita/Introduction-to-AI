@@ -118,8 +118,6 @@ chosen_graph = sym_graph(max_population)
 full_graph = np.ones((max_population,max_population))
 print(full_graph)
 
-
-
 #tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 10, all_pop, curr_pop))
 #tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 100, all_pop, curr_pop))
 #tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop))
