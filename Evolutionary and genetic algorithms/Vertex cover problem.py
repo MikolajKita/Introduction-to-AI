@@ -115,11 +115,11 @@ graph_mine = np.array([[0,1,0,0,1,0,0,0,1,0]
 print(graph_mine)
 tab = []
 chosen_graph = sym_graph(max_population)
-
-
-tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 10, all_pop, curr_pop))
-tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 100, all_pop, curr_pop))
-tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop))
+full_graph = np.ones((max_population,max_population))
+print(full_graph)
+#tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 10, all_pop, curr_pop))
+#tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 100, all_pop, curr_pop))
+#tab.append(evolution_algorithm(chosen_graph, evaluation_method, list, max_population, 8, 1000, all_pop, curr_pop))
 
 print(tab)
 
