@@ -1,7 +1,9 @@
 import random
 import numpy as np
 import copy
-
+import matplotlib.pyplot as plt
+import networkx as nx
+import datetime
 
 def sym_graph(number_of_vertices):
     graph = np.random.randint(0, 2, size=(number_of_vertices, number_of_vertices))
@@ -16,6 +18,10 @@ def evaluation_method(graph_symm, points):
     result = np.sum(chosen_vertex_graph_symm / 2)
     return result
 
+def policemen_graph(graph_symm, points):
+    chosen_vertex_graph = graph_symm * points
+    chosen_vertex_graph_symm = (chosen_vertex_graph | chosen_vertex_graph.T)
+    return chosen_vertex_graph_symm
 
 def list_to_evaluation_array(list, max_population):
     k = 0
@@ -112,10 +118,12 @@ def mutation(current_population, probability, max_population):
 
 
 def evolution_algorithm(graph, evaluation, starting_population, max_population, mutation_prob, max_iter, all_population, size):
+    start = datetime.datetime.now()
     i = 0
     curr_population_array = list_to_evaluation_array(starting_population, max_population)
     max_result = evaluation(graph, curr_population_array)
     start_result = max_result
+    best_vertex_placement = curr_population_array
     current_population = copy.deepcopy(starting_population)
     while i < max_iter:
 
@@ -126,41 +134,65 @@ def evolution_algorithm(graph, evaluation, starting_population, max_population, 
 
         if max_result < evaluation(graph, curr_population_array):
             max_result = evaluation(graph, curr_population_array)
+            best_vertex_placement= curr_population_array
         i = i + 1
 
-    #print(max_result, start_result)
-    return max_result
+    best_vertex_placement_graph = policemen_graph(graph, best_vertex_placement)
+    end = datetime.datetime.now()
+    time = (end - start)
+    print(max_result, start_result, time)
+    return max_result, best_vertex_placement_graph, best_vertex_placement
 
 
-max_population = 5
+def plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size):
+    array = evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability,
+                                100, all_pop, tournament_size)
+    optimal_policemen_position = array[2]
+    score = array[0]
+    color_map = []
+    for node in (optimal_policemen_position):
+        if node == 1:
+            color_map.append('red')
+        else:
+            color_map.append('green')
+    G = nx.from_numpy_array(array[1])
+    nx.draw(G, pos=nx.spring_layout(G), node_color=color_map, with_labels=True)
+    plt.title(
+        'Graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} \n z policjantami w wierzcholkach {} pokrywającymi {} ulic'.
+        format(population, len(population_start), array_to_list(optimal_policemen_position), int(score)))
+    plt.savefig(
+        'Graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} z policjantami w wierzcholkach {} pokrywającymi {} ulic.png'.
+        format(population, len(population_start), array_to_list(optimal_policemen_position), int(score)),
+        bbox_inches='tight')
 
 
-all_pop = np.ones(max_population, dtype=int)
-population_start = [0,1]
-curr_pop = population_start
-graph_mine = np.array([[0, 1, 0, 0, 1, 0, 0, 0, 1, 0]
-                          , [1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
-                          , [0, 0, 0, 0, 1, 1, 0, 1, 0, 1]
-                          , [0, 1, 0, 0, 0, 0, 1, 1, 1, 1]
-                          , [1, 0, 1, 0, 0, 0, 1, 0, 1, 0]
-                          , [0, 1, 1, 0, 0, 0, 0, 1, 0, 0]
-                          , [0, 0, 0, 1, 1, 0, 0, 0, 0, 0]
-                          , [0, 1, 1, 1, 0, 1, 0, 0, 0, 0]
-                          , [1, 0, 0, 1, 1, 0, 0, 0, 0, 0]
-                          , [0, 1, 1, 1, 0, 0, 0, 0, 0, 0]])
+population = 5
+all_pop = np.ones(population, dtype=int)
+number_of_policemen = 3
+tournament_size = 2
+np.random.seed(2021)
+population_start = np.sort(np.random.choice(array_to_list(all_pop), number_of_policemen, replace=False))
+population_start = population_start.tolist()
+max_iter = 100
+mutation_probability = 0.5
 
-tab = []
-chosen_graph = graph_mine
+
 chosen_graph = np.array([[0, 1, 1, 1, 1],
 [1, 0, 1, 1, 1],
 [1, 1, 0, 1, 1],
 [1, 1, 1, 0, 1],
-[1, 1, 1, 1, 0
-]])
+[1, 1, 1, 1, 0]])
+
+plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size)
 
 
-tab.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, max_population, 0.8, 10, all_pop, 2))
-#tab.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, max_population, 0.8, 100, all_pop, 2))
-#tab.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, max_population, 0.8, 1000, all_pop, 2))
+
+
+
+
+
+#.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.8, 10, all_pop, 2))
+#tab.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.8, 100, all_pop, 2))
+#tab.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.8, 1000, all_pop, 2))
 
 #print(tab)
