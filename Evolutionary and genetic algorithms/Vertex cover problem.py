@@ -94,9 +94,11 @@ def losing_tournament(graph, population, tournament_size, evaluation, max_popula
     return tournament_loser
 
 
-def tournament_selection(graph, current_population, tournament_size, evaluation, max_population, all_population, curr_population_array):
+def tournament_selection(graph, current_population, tournament_size, evaluation, max_population, all_population,
+                         curr_population_array):
     removed_one = losing_tournament(graph, current_population, tournament_size, evaluation, max_population)
-    chosen_one = tournament(graph, array_to_list(all_population - curr_population_array), tournament_size, evaluation, max_population)
+    chosen_one = tournament(graph, array_to_list(all_population - curr_population_array), tournament_size, evaluation,
+                            max_population)
     current_population.remove(removed_one)
     current_population.append(chosen_one)
     current_population.sort()
@@ -118,19 +120,18 @@ def mutation(current_population, probability, max_population):
         current_population.remove(mutated_element)
         mutated_element = mutated_element + random.randint(-2, 2)
         while (search_element(mutated_element, current_population)) or mutated_element >= max_population:
-            mutated_element = mutated_element + random.randint(-2,2)
+            mutated_element = mutated_element + random.randint(-2, 2)
             iter = iter + 1
             if iter > 100:
-                mutated_element = mutated_element%max_population + random.randint(0,iter)%max_population
+                mutated_element = mutated_element % max_population + random.randint(0, iter) % max_population
                 if mutated_element < 0:
                     print("TUTAJ")
-
-
 
         current_population.append(mutated_element)
 
 
-def evolution_algorithm(graph, evaluation, starting_population, max_population, mutation_prob, max_iter, all_population, size):
+def evolution_algorithm(graph, evaluation, starting_population, max_population, mutation_prob, max_iter, all_population,
+                        size):
     start = datetime.datetime.now()
     i = 0
     curr_population_array = list_to_evaluation_array(starting_population, max_population)
@@ -140,14 +141,15 @@ def evolution_algorithm(graph, evaluation, starting_population, max_population, 
     current_population = copy.deepcopy(starting_population)
     while i < max_iter:
 
-        tournament_selection(graph, current_population, size, evaluation, max_population, all_population, curr_population_array)
+        tournament_selection(graph, current_population, size, evaluation, max_population, all_population,
+                             curr_population_array)
         mutation(current_population, mutation_prob, max_population)
 
         curr_population_array = list_to_evaluation_array(current_population, max_population)
 
         if max_result < evaluation(graph, curr_population_array):
             max_result = evaluation(graph, curr_population_array)
-            best_vertex_placement= curr_population_array
+            best_vertex_placement = curr_population_array
         i = i + 1
 
     best_vertex_placement_graph = policemen_graph(graph, best_vertex_placement)
@@ -157,20 +159,22 @@ def evolution_algorithm(graph, evaluation, starting_population, max_population, 
     return max_result, best_vertex_placement_graph, best_vertex_placement, start_result, time
 
 
-def plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size):
-    array = evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability,
-                                max_iter, all_pop, tournament_size)
-    G = nx.from_numpy_array(chosen_graph)
+def plot_graph(graph, evaluation, starting_population, population_size, mutation_prob, max_steps, all_population,
+               tournament_size):
+    array = evolution_algorithm(graph, evaluation, starting_population, population_size, mutation_prob,
+                                max_steps, all_population, tournament_size)
+    starting_score = evaluation(graph, list_to_evaluation_array(starting_population, population_size))
+    G = nx.from_numpy_array(graph)
     color_map = []
-    for node in list_to_evaluation_array(population_start, population):
+    for node in list_to_evaluation_array(starting_population, population_size):
         if node == 1:
             color_map.append('red')
         else:
             color_map.append('green')
     nx.draw(G, pos=nx.spring_layout(G), node_color=color_map, with_labels=True)
     plt.savefig(
-        'Wylosowany graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} z policjantami w wierzcholkach poczatkowych {}.png'.
-            format(population, len(population_start), population_start),
+        'Wylosowany graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} z policjantami w wierzcholkach '
+        'poczatkowych {} z poczatkowym wynikiem {}.png'.format(population_size, len(starting_population), starting_population, starting_score),
         bbox_inches='tight')
     G.clear()
     plt.clf()
@@ -186,63 +190,60 @@ def plot_graph(chosen_graph, evaluation_method, population_start, population, mu
     nx.draw(G, pos=nx.spring_layout(G), node_color=color_map, with_labels=True)
     plt.title(
         'Graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} \n z policjantami w wierzcholkach {} pokrywającymi {} ulic'.
-        format(population, len(population_start), array_to_list(optimal_policemen_position), int(score)))
+            format(population_size, len(starting_population), array_to_list(optimal_policemen_position), int(score)))
     plt.savefig(
         'Graf o {} wierzchołkach przy maksymalnej liczbie policjantów {} z policjantami w wierzcholkach {} pokrywającymi {} ulic.png'.
-        format(population, len(population_start), array_to_list(optimal_policemen_position), int(score)),
+            format(population_size, len(starting_population), array_to_list(optimal_policemen_position), int(score)),
         bbox_inches='tight')
     G.clear()
     plt.clf()
 
 
-population = 5
-all_pop = np.ones(population, dtype=int)
+population_parameter = 5
+all_pop = np.ones(population_parameter, dtype=int)
 number_of_policemen = 3
-tournament_size = 2
+tournament_size_parameter = 2
 np.random.seed(2021)
 population_start = np.sort(np.random.choice(array_to_list(all_pop), number_of_policemen, replace=False))
 population_start = population_start.tolist()
-max_iter = 100
+max_iter_parameter = 100
 mutation_probability = 0.5
 
-
 chosen_graph = np.array([[0, 1, 1, 1, 1],
-[1, 0, 1, 1, 1],
-[1, 1, 0, 1, 1],
-[1, 1, 1, 0, 1],
-[1, 1, 1, 1, 0]])
+                         [1, 0, 1, 1, 1],
+                         [1, 1, 0, 1, 1],
+                         [1, 1, 1, 0, 1],
+                         [1, 1, 1, 1, 0]])
 
-#plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size) #graf pelny
+# plot_graph(chosen_graph, evaluation_method, population_start, population_parameter, mutation_probability, max_iter_parameter, all_pop, tournament_size_parameter) #graf pelny
 
 
 np.random.seed(100)
-chosen_graph = sym_graph(population)
-#plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size) #graf losowy
+chosen_graph = sym_graph(population_parameter)
+# plot_graph(chosen_graph, evaluation_method, population_start, population_parameter, mutation_probability, max_iter_parameter, all_pop, tournament_size_parameter) #graf losowy
 
 
-
-population = 6
-all_pop = np.ones(population, dtype=int)
+population_parameter = 6
+all_pop = np.ones(population_parameter, dtype=int)
 population_start = np.sort(np.random.choice(array_to_list(all_pop), number_of_policemen, replace=False))
 population_start = population_start.tolist()
 
 chosen_graph = np.array(
-[[0, 0, 0, 1, 1, 1],
-[0, 0, 0, 1, 1, 1],
-[0, 0, 0, 1, 1, 1],
-[1, 1, 1, 0, 0, 0],
-[1, 1, 1, 0, 0, 0],
-[1, 1, 1, 0, 0, 0]])
-#plot_graph(chosen_graph, evaluation_method, population_start, population, mutation_probability, max_iter, all_pop, tournament_size) #graf dwudzielny
+    [[0, 0, 0, 1, 1, 1],
+     [0, 0, 0, 1, 1, 1],
+     [0, 0, 0, 1, 1, 1],
+     [1, 1, 1, 0, 0, 0],
+     [1, 1, 1, 0, 0, 0],
+     [1, 1, 1, 0, 0, 0]])
+# plot_graph(chosen_graph, evaluation_method, population_start, population_parameter, mutation_probability, max_iter_parameter, all_pop, tournament_size_parameter) #graf dwudzielny
 
 
-
-population = 25
-all_pop = np.ones(population, dtype=int)
+population_parameter = 25
+all_pop = np.ones(population_parameter, dtype=int)
 number_of_policemen = 7
-tournament_size = 3
+tournament_size_parameter = 3
 mutation_probability = 0.5
-chosen_graph = sym_graph(population)
+chosen_graph = sym_graph(population_parameter)
 population_start = np.sort(np.random.choice(array_to_list(all_pop), number_of_policemen, replace=False))
 population_start = population_start.tolist()
 
@@ -250,44 +251,72 @@ iter_10 = []
 iter_100 = []
 iter_1000 = []
 max_range = 0
-#max_range = 100
-for i in range (0, max_range):
-    iter_10.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 10, all_pop, tournament_size)[0])
-    iter_100.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 100, all_pop, tournament_size)[0])
-    iter_1000.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 500, all_pop, tournament_size)[0])
-    print(i)
+# max_range = 100
+for j in range(0, max_range):
+    iter_10.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 10,
+                            all_pop, tournament_size_parameter)[0])
+    iter_100.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 100,
+                            all_pop, tournament_size_parameter)[0])
+    iter_1000.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 500,
+                            all_pop, tournament_size_parameter)[0])
+    print(j)
 
-#print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
-#print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
-#print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
+# print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
+# print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
+# print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
 
 iter_10.clear()
 iter_100.clear()
 iter_1000.clear()
 max_range = 0
 
-for i in range (0, max_range):
-    iter_10.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 250, all_pop, 2)[0])
-    iter_100.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 250, all_pop, 3)[0])
-    iter_1000.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, mutation_probability, 250, all_pop, 5)[0])
-    print(i)
+for j in range(0, max_range):
+    iter_10.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 250,
+                            all_pop, 2)[0])
+    iter_100.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 250,
+                            all_pop, 3)[0])
+    iter_1000.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter,
+                            mutation_probability, 250,
+                            all_pop, 5)[0])
+    print(j)
 
-#print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
-#print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
-#print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
+# print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
+# print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
+# print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
 
-#max_range = 100
+# max_range = 100
 iter_10.clear()
 iter_100.clear()
 iter_1000.clear()
 max_range = 0
 
-for i in range (0, max_range):
-    iter_10.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.05, 250, all_pop, 2)[0])
-    iter_100.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.4, 250, all_pop, 2)[0])
-    iter_1000.append(evolution_algorithm(chosen_graph, evaluation_method, population_start, population, 0.8, 250, all_pop, 2)[0])
-    print(i)
+for j in range(0, max_range):
+    iter_10.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter, 0.05, 250, all_pop,
+                            2)[0])
+    iter_100.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter, 0.4, 250, all_pop,
+                            2)[0])
+    iter_1000.append(
+        evolution_algorithm(chosen_graph, evaluation_method, population_start, population_parameter, 0.8, 250, all_pop,
+                            2)[0])
+    print(j)
 
-#print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
-#print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
-#print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
+# print(statistics.mean(iter_10), min(iter_10), max(iter_10), statistics.stdev(iter_10))
+# print(statistics.mean(iter_100), min(iter_100), max(iter_100), statistics.stdev(iter_100))
+# print(statistics.mean(iter_1000), min(iter_1000), max(iter_1000), statistics.stdev(iter_1000))
+
+plot_graph(chosen_graph, evaluation_method, population_start, population_parameter, mutation_probability,
+           max_iter_parameter, all_pop,
+           tournament_size_parameter)  # graf dwudzielny
