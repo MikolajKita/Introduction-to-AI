@@ -1,5 +1,5 @@
 import numpy as np
-
+import random
 
 
 def board(row = 8, column = 8):
@@ -20,7 +20,7 @@ def valid_move(board_list, player, row_number, column_number):
     array_to_return = [0,0,0,0,0]
 
     if board_list[row_number][column_number] != '+':
-        print('Znajduje sie tutaj figura')
+        #print('Znajduje sie tutaj figura')
         return array_to_return
     if player == 1:
         seek_piece = -1
@@ -54,10 +54,10 @@ def all_valid_moves(board_list, player, row=8, column=8):
             array = valid_move(board_list, player, i, j)
             if array[0]:
                 valid_move_table[i][j] = array[0]
-                print(i,j)
+
 
     board_array = np.array(valid_move_table, ndmin=2)
-    print(board_array)
+    #print(board_array)
     return board_array
 
 def move(row_number, column_number, board_list, player):
@@ -70,14 +70,18 @@ def move(row_number, column_number, board_list, player):
     y_end = helparray[2]
     x_direct = helparray[3]
     y_direct = helparray[4]
-    print(helparray)
-    board_list[row_number][column_number] = value
-    while not (row_number == x_end and y_end == column_number):
-        print("tutaj")
-        row_number = row_number + x_direct
-        column_number = column_number + y_direct
-        print(row_number, column_number)
+    #print(helparray)
+    if (x_direct == 0 and y_direct == 0):
+        new_board_array = np.array(board_list, ndmin=2)
+        return new_board_array
+
+    else:
         board_list[row_number][column_number] = value
+        while not (row_number == x_end and y_end == column_number):
+            row_number = row_number + x_direct
+            column_number = column_number + y_direct
+            #print(x_direct, y_direc)
+            board_list[row_number][column_number] = value
 
     new_board_array = np.array(board_list, ndmin = 2)
     return new_board_array
@@ -86,6 +90,8 @@ def move(row_number, column_number, board_list, player):
 def print_board(board_list):
     new_board_array = np.array(board_list, ndmin=2)
     print(new_board_array)
+    print()
+
 
 def starting_moves(board_list):
     board_list[3][3] = 1
@@ -93,23 +99,31 @@ def starting_moves(board_list):
     board_list[4][3] = -1
     board_list[4][4] = 1
 
+def random_move(available_moves, board_list, player):
 
+    x = random.randint(0,7)
+    y = random.randint(0, 7)
+    while available_moves[x][y] == 0:
+        x = random.randint(0, 7)
+        y = random.randint(0, 7)
+
+    move(x, y, board_list, player)
 
 
 new_board_list = board()
 
 starting_moves(new_board_list)
 print_board(new_board_list)
-print()
-move(2,4,new_board_list,1)
-print_board(new_board_list)
-print()
-all_valid_moves(new_board_list,2)
-print()
-move(4,5,new_board_list,-1)
-print()
-print_board(new_board_list)
-all_valid_moves(new_board_list,1)
+print(all_valid_moves(new_board_list, 1))
 i = 0
-while i < 10:
-    all_valid_moves(new_board_list,1)
+while i < 5:
+
+    valid_moves = all_valid_moves(new_board_list,1)
+    random_move(valid_moves, new_board_list,1)
+    print_board(new_board_list)
+
+    valid_moves = all_valid_moves(new_board_list, 2)
+    random_move(valid_moves, new_board_list,2)
+    print_board(new_board_list)
+
+    i = i + 1
