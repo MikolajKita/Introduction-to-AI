@@ -40,7 +40,7 @@ def valid_move(board_list, player, row_number, column_number):
 
     if board_list[row_number][column_number] != '+':
         print('Znajduje sie tutaj figura')
-        return False
+        return 0
     if player == 1:
         seek_piece = -1
     else:
@@ -59,8 +59,17 @@ def valid_move(board_list, player, row_number, column_number):
                 y_cor = y_cor + y_direction
                 number_of_pieces = number_of_pieces + 1
         if board_list[x_cor][y_cor] == seek_piece*(-1) and number_of_pieces > 0:
-            move(row_number, column_number, board_list, player)
-            print(x_cor, y_cor)
+            return number_of_pieces
+
+
+def all_valid_moves(board_list, player, row=8, column=8):
+    valid_move_table = [[0]*row for _ in range(column)]
+    for i in range (0, row-1):
+        for j in range(0, column-1):
+            if valid_move(board_list, player, i, j):
+                valid_move_table[i][j] = 1
+    board_array = np.array(valid_move_table, ndmin=2)
+    print(board_array)
 
 
     #while(board_list[x_cor][y_cor]==seek_piece):
@@ -75,5 +84,9 @@ valid_move(new_board_list, 1, 2,4)
 valid_move(new_board_list, 1, 3,5)
 valid_move(new_board_list, 1, 4,2)
 valid_move(new_board_list, 1, 5,3)
+move(4,2,new_board_list,1)
 print_board(new_board_list)
-
+print()
+all_valid_moves(new_board_list,2)
+print()
+print_board(new_board_list)
