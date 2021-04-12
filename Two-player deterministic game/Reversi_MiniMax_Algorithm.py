@@ -109,6 +109,19 @@ def random_move(available_moves, board_list, player):
 
     move(x, y, board_list, player)
 
+def score(board_list, row, column):
+    player_one = 0
+    player_two = 0
+    for i in range (0, row-1):
+        for j in range(0, column-1):
+            if(board_list[i][j]!='+'):
+                if(board_list[i][j]==1):
+                    player_one = player_one + 1
+                else:
+                    player_two = player_two - 1
+
+    print(player_one, player_two*(-1))
+
 
 new_board_list = board()
 
@@ -125,5 +138,6 @@ while i < 5:
     valid_moves = all_valid_moves(new_board_list, 2)
     random_move(valid_moves, new_board_list,2)
     print_board(new_board_list)
-
     i = i + 1
+
+score(new_board_list, 8,8)
