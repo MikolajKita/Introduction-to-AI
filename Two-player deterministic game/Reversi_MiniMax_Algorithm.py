@@ -61,8 +61,8 @@ def valid_move(board_list, player, row_number, column_number):
 
 def all_valid_moves(board_list, player, row=8, column=8):
     valid_move_table = [[0]*row for _ in range(column)]
-    for i in range (0, row-1):
-        for j in range(0, column-1):
+    for i in range (0, row):
+        for j in range(0, column):
             array = valid_move(board_list, player, i, j)
             if array[0]:
 
@@ -84,9 +84,6 @@ def move(row_number, column_number, board_list, player):
             x = i[0]
             y = i[1]
             board_list[x][y] = value
-
-
-
     new_board_array = np.array(board_list, ndmin = 2)
     return new_board_array
 
@@ -105,20 +102,23 @@ def starting_moves(board_list):
 
 def is_a_move_possible(available_moves_array, row, column):
     sumofmoves = 0
-    for i in range(0, row - 1):
-        for j in range(0, column - 1):
+    for i in range(0, row):
+        for j in range(0, column):
             sumofmoves = sumofmoves + available_moves_array[i][j]
     return sumofmoves
 
 def random_move(available_moves, board_list, player, row, column):
 
     if(is_a_move_possible(available_moves, row, column)==0):
+        print("brak mozliwosci ruchu")
         return
     x = random.randint(0,row-1)
     y = random.randint(0, column-1)
+
     while available_moves[x][y] == 0:
         x = random.randint(0, row-1)
         y = random.randint(0, column-1)
+
     move(x, y, board_list, player)
 
 def score(board_list, row, column):
@@ -141,19 +141,20 @@ starting_moves(new_board_list)
 print_board(new_board_list)
 print(all_valid_moves(new_board_list, 1))
 i = 0
-while i < 1:
+while i < 150:
 
-    valid_moves = all_valid_moves(new_board_list,2)
-    move(3,2,new_board_list,2)
-    #random_move(valid_moves, new_board_list,1, 8, 8)
+    valid_moves = all_valid_moves(new_board_list,1)
+    #print(valid_moves)
+    random_move(valid_moves, new_board_list,1, 8, 8)
+    #print_board(new_board_list)
+    valid_moves = all_valid_moves(new_board_list, 2)
+    #print(valid_moves)
+    random_move(valid_moves, new_board_list,2,8,8)
     print_board(new_board_list)
-    valid_moves = all_valid_moves(new_board_list, 1)
-    move(4, 2, new_board_list, 1)
-    #random_move(valid_moves, new_board_list,2,8,8)
-    print_board(new_board_list)
+
     i = i + 1
-    move(5, 2, new_board_list, 2)
-    print_board(new_board_list)
+
+    print(i)
 
 score(new_board_list, 8,8)
 valid_moves = all_valid_moves(new_board_list, 1)
